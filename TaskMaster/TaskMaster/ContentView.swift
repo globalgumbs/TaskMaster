@@ -32,7 +32,7 @@ struct ContentView: View {
             
             Spacer()
             
-            Text("No Tasks Yet")
+            TaskView()
             
             Spacer()
             
@@ -98,9 +98,57 @@ struct CalendarButton: View{
 }
 
 
-struct DateFinder {
+struct Task: Identifiable {
+    //Properties
+    let label: String
+    let id = UUID()
     
 }
+
+struct TaskView: View{
+    // Properties
+    var tasks: [Task] = [Task(label: "Protect Ya Neck")]
+    
+    
+    
+    // View
+    var body: some View{
+        
+        if areThereTasks(tasks: tasks) == true {
+            
+            List(tasks) {
+                Text($0.label)
+            }
+            
+        }
+        else{
+            
+            Text("No Tasks")
+            
+        }
+        
+        
+        
+    }
+    
+    // Methods
+    
+    // return true if there are tasks
+    func areThereTasks(tasks: Array<Task>) -> Bool {
+        let tasksEmpty = tasks.isEmpty
+        
+        if tasksEmpty == false { //array is NOT empty (there are tasks)
+            return true
+        }
+        else { //array is empty (no tasks)
+            return false
+        }
+    }
+    
+}
+
+
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
