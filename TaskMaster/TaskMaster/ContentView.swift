@@ -10,29 +10,36 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         VStack{
-            HStack{
-                let mySpace = Spacer()
-                    .frame(width: 10.0)
-                let myGroup = Group {
-                    CalendarButton()
-                    mySpace
-                }
-                
-                mySpace
-                myGroup
-                myGroup
-                myGroup
-                myGroup
-                myGroup
-                myGroup
-                myGroup
-                mySpace
-                
-            }.padding()
-            
+            /*
+             HStack{
+             
+             let mySpace = Spacer()
+             .frame(width: 10.0)
+             let myGroup = Group {
+             CalendarButton()
+             mySpace
+             }
+             
+             
+             mySpace
+             myGroup
+             myGroup
+             myGroup
+             myGroup
+             myGroup
+             myGroup
+             myGroup
+             mySpace
+             
+             }.padding()
+             
+             Spacer()
+             
+             TaskView()
+             */
             Spacer()
             
-            TaskView()
+            CircleView()
             
             Spacer()
             
@@ -109,12 +116,23 @@ struct TaskView: View{
     // Properties
     var tasks: [Task] = [Task(label: "Protect Ya Neck")]
     
+    // return true if there are tasks
+    var areThereTasks: Bool {
+        let tasksEmpty = tasks.isEmpty
+        
+        if tasksEmpty == false { //there are tasks
+            return true
+        }
+        else { //array is empty (no tasks)
+            return false
+        }
+    }
     
     
     // View
     var body: some View{
         
-        if areThereTasks(tasks: tasks) == true {
+        if areThereTasks == true {
             
             List(tasks) {
                 Text($0.label)
@@ -126,29 +144,38 @@ struct TaskView: View{
             Text("No Tasks")
             
         }
-        
-        
-        
     }
-    
-    // Methods
-    
-    // return true if there are tasks
-    func areThereTasks(tasks: Array<Task>) -> Bool {
-        let tasksEmpty = tasks.isEmpty
-        
-        if tasksEmpty == false { //array is NOT empty (there are tasks)
-            return true
-        }
-        else { //array is empty (no tasks)
-            return false
-        }
-    }
-    
 }
 
-
-
+struct CircleView: View {
+    var screenWidth = UIScreen.main.bounds.width
+    
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false){
+            LazyHStack{
+                ForEach(0..<7) {_ in
+                    VStack{
+                        Text("March 4")
+                        
+                        ZStack{
+                            Circle()
+                                .frame(
+                                    width: screenWidth * (2/3),
+                                    height: screenWidth * (2/3))
+                                .padding(.leading, 0)
+                            
+                            Text("Hello")
+                                .foregroundColor(Color.white)
+                            
+                        }
+                    }
+                }
+            }
+        }
+        
+        
+    }
+}
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
