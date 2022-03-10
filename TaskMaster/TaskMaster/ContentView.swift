@@ -10,213 +10,180 @@ import Foundation
 
 struct ContentView: View {
     var body: some View {
-        NavigationView {
-            VStack{
-                Spacer()
-                
-                CircleView()
-                
-                Spacer()
-                
-                NavigationLink(
-                    destination: TaskInputView(),
-                    label: {
-                    
-                        AddTaskButton()
-                    }
-                )
-                
-            }
-        }
+        
+        CircleView(tasksArray: [])
+        
     }
 }
 
-struct AddTaskButton: View {
-    var body: some View {
-        
-        VStack{
-            
-            
-            Image(
-                systemName: "plus.circle.fill"
-            )
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 100, height: 100)
-                .foregroundColor(.black)
-            
-            
-            Text("Add a task")
-                .fontWeight(/*@START_MENU_TOKEN@*/.semibold/*@END_MENU_TOKEN@*/)
-                .foregroundColor(.black)
-                .padding()
-            
-        }
-        
-    }
-    
-    
-}
+
 
 
 struct TaskInputView: View {
-    @State var newTask: String = ""
+    @State var tasksArray: Array<Any>
+    
+    @State var newTask: String = ""    
+    @State var willGoToTaskView: Bool = false
+    @State var inputInstructionsColor: Color = Color.black
     
     var body: some View{
-        NavigationView{
-            VStack{
-                Spacer()
-                
-                Text("New Task: \(newTask)")
-                    .font(.title)
-                    .fontWeight(.bold)
-                
-                Spacer()
-                
-                TextField(
-                    "",
-                    text: $newTask,
-                    onCommit: {
+        VStack{
+            Spacer()
+            
+            Text("New Task: \(newTask)")
+                .font(.title)
+                .fontWeight(.bold)
+            
+            
+            TextField(
+                "",
+                text: $newTask,
+                onCommit: {}
+            )
+                .frame(width: 200, height: /*@START_MENU_TOKEN@*/30.0/*@END_MENU_TOKEN@*/)
+                .multilineTextAlignment(/*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+                .background(Color(white: 0.816))
+                .cornerRadius(/*@START_MENU_TOKEN@*/10.0/*@END_MENU_TOKEN@*/)
+            
+            Text("Input Task").foregroundColor(inputInstructionsColor)
+            
+            Spacer()
+            Spacer()
+            
+            Button(
+                action: {
+                    if String(self.newTask).isEmpty{
+                        self.inputInstructionsColor = Color.red
+                    }
+                    else{
+                        
+                        self.tasksArray.append( Task(label: self.newTask) )
+                        self.willGoToTaskView = true
+                    }
+                }
+            )
+                {
+                    ZStack{
+                    RoundedRectangle(cornerRadius: 10)
+                        .frame(
+                            width: (CircleView(tasksArray: []).screenWidth - 50),
+                            height: /*@START_MENU_TOKEN@*/50.0/*@END_MENU_TOKEN@*/)
+                        .foregroundColor(.black)
+                    
+                    
+                    
+                    HStack{
+                        Text("Next")
+                            .foregroundColor(.white)
+                        
+                        Image.init(systemName:
+                                    "chevron.right.circle")
+                            .foregroundColor(.white)
                         
                     }
-                )
-                    .frame(width: 200, height: /*@START_MENU_TOKEN@*/30.0/*@END_MENU_TOKEN@*/)
-                    .multilineTextAlignment(/*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-                    .background(Color(white: 0.816))
-                    .cornerRadius(/*@START_MENU_TOKEN@*/10.0/*@END_MENU_TOKEN@*/)
-                
-                Text("Input Task")
-                
-                Spacer()
-                
-                
-                NavigationLink(
-                    destination: ContentView(),
-                    label: {
-                        ZStack{
-                            RoundedRectangle(cornerRadius: 10)
-                                .frame(
-                                    width: (CircleView().screenWidth - 50),
-                                    height: /*@START_MENU_TOKEN@*/50.0/*@END_MENU_TOKEN@*/)
-                                .foregroundColor(.black)
-                            
-                            
-                            
-                            HStack{
-                                Text("Next")
-                                    .foregroundColor(.white)
-                                
-                                Image.init(systemName:
-                                            "chevron.right.circle")
-                                    .foregroundColor(.white)
-                                
-                            }
-                            
-                        }
-                        
-                        .ignoresSafeArea()
-                    }
-                )
-                
-                
-            }
-        }
-    }
-}
-
-
-
-struct CalendarButton: View{
-    var body: some View{
-        let dayVar = 2
-        Button(
-            action: {
-                print("cal")
-            },
-            
-            label: {
-                Image(systemName: "\(dayVar).circle.fill")
-                    .resizable(resizingMode: .tile)
-                    .foregroundColor(.black)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 37.5, height: 37.5)
-            }
-        )
-    }
-}
-
-
-struct Task: Identifiable {
-    //Properties
-    let label: String
-    let id = UUID()
-    
-    
-}
-
-struct TaskView: View{
-    // Properties
-    var tasks: [Task] = [Task(label: "Protect Ya Neck")]
-    
-    // return true if there are tasks
-    var areThereTasks: Bool {
-        let tasksEmpty = tasks.isEmpty
-        
-        if tasksEmpty == false { //there are tasks
-            return true
-        }
-        else { //array is empty (no tasks)
-            return false
-        }
-    }
-    
-    
-    // View
-    var body: some View{
-        
-        if areThereTasks {
-            
-            List(tasks) {
-                Text($0.label)
+                    
+                }
             }
             
+            Spacer()
         }
-        else{
-            
-            Text("No Tasks")
-            
-        }
+        .navigate(
+            to: CircleView(tasksArray: tasksArray),
+            when: $willGoToTaskView)
     }
 }
+
+
+
 
 struct CircleView: View {
+    @State var tasksArray: Array<Any>
+    
     var screenWidth = UIScreen.main.bounds.width
+    @State private var willGoToTaskInputView = false
     
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false){
-            LazyHStack{
-                ForEach(0..<7) {_ in
-                    VStack{
-                        Text("March 4")
-                        
-                        ZStack{
-                            Circle()
-                                .frame(
-                                    width: screenWidth * (2/3),
-                                    height: screenWidth * (2/3))
-                                .padding(.leading, 0)
+        VStack{
+            ScrollView(.horizontal, showsIndicators: false){
+                LazyHStack{
+                    ForEach(0..<7) {_ in
+                        VStack{
+                            Text("March 4")
                             
-                            Text("Tasks: x")
-                                .foregroundColor(Color.white)
-                            
+                            ZStack{
+                                Circle()
+                                    .frame(
+                                        width: screenWidth * (2/3),
+                                        height: screenWidth * (2/3))
+                                
+                                Text("Tasks: \(self.tasksArray.count)")
+                                    .foregroundColor(Color.white)
+                                
+                            }
                         }
                     }
                 }
+                .frame(height: /*@START_MENU_TOKEN@*/350.0/*@END_MENU_TOKEN@*/)
+            }
+            
+            Spacer()
+            
+            Button( action: {
+                self.willGoToTaskInputView = true
+            }) {
+                
+                VStack{
+                    
+                    Image(
+                        systemName: "plus.circle.fill"
+                    )
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.black)
+                    
+                    
+                    Text("Add a task")
+                        .fontWeight(/*@START_MENU_TOKEN@*/.semibold/*@END_MENU_TOKEN@*/)
+                        .foregroundColor(.black)
+                    
+                    
+                    
+                }
+                
+                
+            }
+            
+            Spacer()
+        }
+        .navigate(to: TaskInputView(tasksArray: tasksArray), when: $willGoToTaskInputView)
+    }
+}
+
+extension View {
+    /// Navigate to a new view.
+    /// - Parameters:
+    ///   - view: View to navigate to.
+    ///   - binding: Only navigates when this condition is `true`.
+    func navigate<NewView: View>(to view: NewView, when binding: Binding<Bool>) -> some View {
+        NavigationView {
+            ZStack {
+                self
+                    .navigationBarTitle("")
+                    .navigationBarHidden(true)
+                
+                NavigationLink(
+                    destination: view
+                        .navigationBarTitle("")
+                        .navigationBarHidden(true),
+                    isActive: binding
+                ) {
+                    EmptyView()
+                }
             }
         }
-        
-        
+        .navigationViewStyle(.stack)
     }
 }
 
