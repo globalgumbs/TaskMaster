@@ -25,7 +25,11 @@ struct CircleView: View {
                     ForEach(0..<7) {i in
                         VStack{
                             
-                            Text("\( getNextSeven()[i] )")
+                            let today = getNextSeven()[i]
+                            let dateString = stringifyDate(date: today)
+                            let taskCount = getDailyTasks(date: today, tasksArray: self.tasksArray).count
+                            
+                            Text( dateString )
                             
                             ZStack{
                                 Circle()
@@ -33,9 +37,17 @@ struct CircleView: View {
                                         width: screenWidth * (2/3),
                                         height: screenWidth * (2/3))
                                 
-                                Text("Tasks: \(self.tasksArray.count)")
-                                    .foregroundColor(Color.white)
-                                
+        
+                                if taskCount == 0 {
+                                    Text("No Tasks")
+                                        .foregroundColor(Color.white)
+                                        .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                                }
+                                else {
+                                    Text("\(taskCount)")
+                                        .foregroundColor(Color.white)
+                                        .font(.largeTitle)
+                                }
                             }
                         }
                     }
@@ -76,20 +88,9 @@ struct CircleView: View {
         .navigate(to: TaskInputView(tasksArray: tasksArray), when: $willGoToTaskInputView)
     }
 
-/*
-    func getTaskDate(tasksArray: [Task], taskIndex: Int) -> String {
-        let currentTask: Task = tasksArray[taskIndex]
-        let taskDate: Date = currentTask.date
-        let dateFormatter = DateFormatter()
-        
-        dateFormatter.dateFormat = "YY/MM/dd"
-        let dateString = dateFormatter.string(from: taskDate)
-        
-        return dateString
-    }
-*/
+
     
-    func myDateAsString(date: Date) -> String {
+    func stringifyDate(date: Date) -> String {
         let dateFormatter = DateFormatter()
         
         dateFormatter.dateFormat = "MMMM d"
@@ -98,20 +99,29 @@ struct CircleView: View {
         return dateString
     }
     
-    func getNextSeven() -> Array<String> {
+    func getNextSeven() -> Array<Date> {
         var myDate = Date.now
-        var weekArray: [String] = []
-        //let calDay = Calendar.current
+        var weekArray: [Date] = [myDate]
         
-        for _ in 0...6 {
+        for _ in 0...5 {
             myDate = myDate.sameTimeNextDay()
         
-            let newDateString = myDateAsString(date: myDate)
-            weekArray.append(newDateString)
+            //let newDateString = myDateAsString(date: myDate)
+            weekArray.append(myDate)
         }
         
         return weekArray
     }
     
-    
+    func getDailyTasks(date: Date, tasksArray: [Task]) -> [Task] {
+        var dailyTasks: [Task] = []
+        
+        for i in tasksArray {
+            if stringifyDate(date: i.date) == stringifyDate(date: date) {
+                dailyTasks.append(i)
+            }
+        }
+        
+        return dailyTasks
+    }
 }

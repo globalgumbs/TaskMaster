@@ -42,7 +42,7 @@ struct TaskInputView: View {
             
             DatePicker(
                 selection: $taskDate,
-                in: Date()...,
+                in: Date.now...,
                 displayedComponents: .date,
                 label: { Text("Date:") }
             )
