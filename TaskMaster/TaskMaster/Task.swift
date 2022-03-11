@@ -11,7 +11,11 @@ import SwiftUI
 struct Task: Identifiable {
     //Properties
     let label: String
-    let id = UUID()
-    let date = Date()
+    let date: Date
     
+    let id: UUID = UUID()
+    
+
 }
+
+
