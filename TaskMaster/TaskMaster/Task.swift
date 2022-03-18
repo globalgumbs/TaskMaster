@@ -7,15 +7,26 @@
 
 import Foundation
 import SwiftUI
+import SwiftyJSON
 
-struct Task: Identifiable {
-    //Properties
-    let label: String
-    let date: Date
+struct Task: Codable, Hashable {
+//MARK: Properties
+    // Input Properties
+    var label: String
+    var date: Date
     
-    let id: UUID = UUID()
+    //Other Properties
+    var uuid: UUID = UUID()
     
-
+    
+//MARK: Create JSON
+    enum CodingKeys: String, CodingKey {
+        case label = "label"
+        case date = "date"
+        case uuid = "uuid"
+    }
 }
+
+ 
 
 
