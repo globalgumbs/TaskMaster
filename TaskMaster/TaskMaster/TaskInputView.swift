@@ -7,23 +7,21 @@
 
 import SwiftUI
 import Foundation
-import SwiftyJSON
+import CoreData
 
 struct TaskInputView: View {
     
-//MARK: Properties
-    // Input Properties
-    @State var tasksArray: Array<Task>
-    
-    // Initial Properties
+    //MARK: Properties
+ 
+    @Environment(\.managedObjectContext) var moc
     @State var newTask: String = ""
     @State var willGoToTaskView: Bool = false
     @State var inputInstructionsColor: Color = Color.black
     @State var taskDate = Date()
     
-    let screenWidth = CircleView(tasksArray: []).screenWidth
-  
-//MARK: View
+    let screenWidth = CircleView().screenWidth
+    
+    //MARK: View
     var body: some View{
         VStack{
             Spacer()
@@ -55,7 +53,7 @@ struct TaskInputView: View {
                 label: { Text("Date:") }
             )
                 .frame(width: /*@START_MENU_TOKEN@*/180.0/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/0.0/*@END_MENU_TOKEN@*/)
-
+            
             
             Spacer()
             
@@ -63,23 +61,22 @@ struct TaskInputView: View {
             Button(
                 action: {
                     if String(self.newTask).isEmpty{
+                        //_ = clearEntity(entityName: "CoreTask") //MARK: use this to reset
                         self.inputInstructionsColor = Color.red
                     }
                     else{
-                        
-                        let task = Task(
-                            label: self.newTask,
-                            date: self.taskDate
-                        )
-                        
-                        self.tasksArray.append(task)
-                        print(addTaskToDatabase(task: task))
+                        let coreTask = CoreTask(context: moc)
+                            coreTask.label = self.newTask
+                            coreTask.date = self.taskDate
+                            coreTask.uuid = UUID()
+                        try? moc.save()
+
                         self.willGoToTaskView = true
                     }
                 }
             )
-                {
-                    ZStack{
+            {
+                ZStack{
                     RoundedRectangle(cornerRadius: 10)
                         .frame(
                             width: (screenWidth - 50),
@@ -104,65 +101,29 @@ struct TaskInputView: View {
             Spacer()
         }
         .navigate(
-            to: CircleView(tasksArray: tasksArray),
+            to: CircleView(),
             when: $willGoToTaskView)
     }
     
     
-//MARK: Functions
-    func addTaskToDatabase(task: Task) -> String {
-        
-            //let url = Bundle.main.path(forResource: "TaskCache", ofType: "json")
-            //let fileStr = try? String(contentsOfFile: url!, encoding: String.Encoding.utf8)
-            //print(fileStr)
-            //let fileJson = JSON(fileStr)
-        
-            
-            
-        let encoder = JSONEncoder()
-        let taskJson = try? (encoder.encode(task))
-        let taskStr = String(data: taskJson!, encoding: .utf8)
-        
-        
-            
-            //let sumJson = try fileJson.merged(with: taskJson)
-        //do {
-           // if let finalStr = taskJson!.rawString() {
-        let file = "TaskCache.json"
-        
-        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let fileURL = dir.appendingPathComponent(file)
-            
-        
-            do {
-                try taskStr!.write(to: fileURL, atomically: false, encoding: String.Encoding.utf8)
-                //return taskStr!
-            } catch {
-                return error.localizedDescription
-            }
-            do {
-                let text2 = try String(contentsOf: fileURL, encoding: .utf8)
-                return text2
-            }
-            catch {
-                return error.localizedDescription
-            }
-        }
-            //} else {
-                //print("No existe")
-            //}
-            
-            //return("Weird")
-       // } catch let myError {
-      //      return("\(myError.localizedDescription)" )
-      //  }
-       // return "Made It"
-        return "Idk atp"
-    }
+    //MARK: Functions
     
-    func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return paths[0]
+    // clear CoreData entity
+    func clearEntity(entityName: String) -> Bool {
+        // Create Fetch Request
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+
+        // Create Batch Delete Request
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+        do {
+            try moc.execute(batchDeleteRequest)
+
+        } catch {
+            // Error Handling
+        }
+        
+        return true
     }
     
 }

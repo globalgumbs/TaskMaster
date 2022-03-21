@@ -7,15 +7,13 @@
 
 import SwiftUI
 import Foundation
+import CoreData
 
 
 struct CircleView: View {
 //MARK: Properties
-    // Input Properties
-    @State var tasksArray: Array<Task>
     
-    
-    // Properties
+    @FetchRequest(sortDescriptors: []) var tasks: FetchedResults<CoreTask>
     @State private var willGoToTaskInputView = false
     @State private var willGoToDayView = false
     @State var dayViewDate: Date = Date()
@@ -35,8 +33,8 @@ struct CircleView: View {
                             VStack {
                                 
                                 let today = getNextSeven()[i]
+                                let taskCount = fetchDailyTasks(date: today, tasks: tasks).count
                                 let dateString = stringifyDate(date: today)
-                                let taskCount = getDailyTasks(date: today, tasksArray: self.tasksArray).count
                                 
                                 Text( dateString ).foregroundColor(.black)
                                 
@@ -90,7 +88,7 @@ struct CircleView: View {
             Spacer()
         }
         .navigate(to: DayView(date: self.dayViewDate), when: $willGoToDayView)
-        .navigate(to: TaskInputView(tasksArray: tasksArray), when: $willGoToTaskInputView)
+        .navigate(to: TaskInputView(), when: $willGoToTaskInputView)
     }
     
     
@@ -112,22 +110,27 @@ struct CircleView: View {
         for _ in 0...5 {
             myDate = myDate.sameTimeNextDay()
             
-            //let newDateString = myDateAsString(date: myDate)
             weekArray.append(myDate)
         }
         
         return weekArray
     }
     
-    func getDailyTasks(date: Date, tasksArray: [Task]) -> [Task] {
-        var dailyTasks: [Task] = []
+    func fetchDailyTasks(date: Date, tasks: FetchedResults<CoreTask>) -> [CoreTask] {
+       
+        var dailyTaskArr: [CoreTask] = []
         
-        for i in tasksArray {
-            if stringifyDate(date: i.date) == stringifyDate(date: date) {
-                dailyTasks.append(i)
+        for task in tasks {
+            if let taskDate = task.date {
+                if stringifyDate(date: taskDate) == stringifyDate(date: date) {
+                    dailyTaskArr.append(task)
+                }
+            } else {
             }
         }
         
-        return dailyTasks
+        return dailyTaskArr
     }
+    
+    
 }

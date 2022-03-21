@@ -7,12 +7,12 @@
 
 import SwiftUI
 import Foundation
+import CoreData
 
-struct ContentView: View {
+struct ContentView: View {    
+    
     var body: some View {
-        
-        CircleView(tasksArray: [])
-        
+        CircleView()
     }
 }
 
