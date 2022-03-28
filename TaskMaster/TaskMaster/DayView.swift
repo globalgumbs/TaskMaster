@@ -2,12 +2,12 @@
 //  DayView.swift
 //  TaskMaster
 //
-//  Created by LibUser on 3/12/22.
+//  Created by agumbs1 on 3/12/22.
 //
 
 import Foundation
 import SwiftUI
-import SwiftyJSON
+
 
 struct DayView: View {
     
@@ -19,7 +19,6 @@ struct DayView: View {
     
     //Initial Properties
     @FetchRequest(sortDescriptors: []) var tasks: FetchedResults<CoreTask>
-    
         
     
     
@@ -33,21 +32,22 @@ struct DayView: View {
                 .fontWeight(.semibold)
             
             let dailyTaskArr = fetchDailyTasks(date: date, tasks: tasks)
-    
-            ForEach(dailyTaskArr, id: \.self) {t in
-                    
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 40)
-                            .frame(
-                                width: CircleView().screenWidth - 50,
-                                height: /*@START_MENU_TOKEN@*/100.0/*@END_MENU_TOKEN@*/)
+            
+            List {
+                ForEach(dailyTaskArr, id: \.self) {task in
                         
-                        Text("\(t.label ?? "")").font(.title).foregroundColor(.white)
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 40)
+                                .frame(
+                                    width: CircleView().screenWidth - 50,
+                                    height: /*@START_MENU_TOKEN@*/100.0/*@END_MENU_TOKEN@*/)
                             
-                    }
-                    .padding(.top)
+                            Text("\(task.label ?? "")").font(.title).foregroundColor(.white)
+                                
+                        }
+                        .padding(.top)
+                }
             }
-
             Spacer()
         }
     }

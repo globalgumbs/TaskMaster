@@ -61,7 +61,7 @@ struct TaskInputView: View {
             Button(
                 action: {
                     if String(self.newTask).isEmpty{
-                        //_ = clearEntity(entityName: "CoreTask") //MARK: use this to reset
+                        //_ = clearEntity(entityName: "CoreTask") //MARK: (initialize CoreData)
                         self.inputInstructionsColor = Color.red
                     }
                     else{
